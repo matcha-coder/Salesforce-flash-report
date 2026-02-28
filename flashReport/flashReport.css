@@ -1,0 +1,221 @@
+.data-export-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 600px;
+}
+
+/* Query Section */
+.query-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.query-options {
+    display: flex;
+    align-items: center;
+}
+
+/* Query Tabs */
+.query-tabs {
+    display: flex;
+    align-items: center;
+    border-bottom: 2px solid #dddbda;
+    margin-bottom: 0.5rem;
+    gap: 2px;
+}
+
+.query-tabs > div {
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    background: #f3f2f2;
+    border: 1px solid #dddbda;
+    border-bottom: none;
+    border-radius: 0.25rem 0.25rem 0 0;
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: background-color 0.1s ease;
+}
+
+.query-tabs > div:hover {
+    background: #e5e5e5;
+}
+
+.query-tabs > div.true {
+    background: white;
+    border-bottom: 2px solid white;
+    margin-bottom: -2px;
+    font-weight: 600;
+}
+
+.query-tab-name {
+    font-size: 0.875rem;
+}
+
+.query-tab-close {
+    font-size: 1.25rem;
+    line-height: 1;
+    color: #706e6b;
+    cursor: pointer;
+    padding: 0 0.25rem;
+}
+
+.query-tab-close:hover {
+    color: #c23934;
+}
+
+.add-tab-button {
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    background: #f3f2f2;
+    border: 1px solid #dddbda;
+    border-bottom: none;
+    border-radius: 0.25rem 0.25rem 0 0;
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #0176d3;
+    transition: background-color 0.1s ease;
+}
+
+.add-tab-button:hover {
+    background: #e5e5e5;
+}
+
+/* Query Builder */
+.query-builder {
+    background: #f3f2f2;
+    padding: 1rem;
+    border-radius: 0.25rem;
+    border: 1px solid #dddbda;
+}
+
+/* Generated Query Display */
+.generated-query {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 14px;
+    background: #fafaf9;
+    padding: 0.75rem;
+    border: 1px solid #dddbda;
+    border-radius: 0.25rem;
+    white-space: pre-wrap;
+    word-break: break-word;
+    color: #0176d3;
+    font-weight: 600;
+}
+
+/* Result Card */
+.result-card {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+.result-card .slds-card__body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+/* Result Bar */
+.result-bar {
+    display: flex;
+    align-items: center;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #dddbda;
+    margin-bottom: 0.5rem;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.result-status {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.result-status .slds-badge {
+    font-size: 0.75rem;
+}
+
+.result-status .true {
+    background-color: #c23934;
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+}
+
+.result-status .false {
+    background-color: #4bca81;
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+}
+
+.filter-input {
+    width: 200px;
+}
+
+/* Results Table */
+.result-table-container {
+    flex: 1;
+    overflow: auto;
+    min-height: 0;
+    border: 1px solid #dddbda;
+    border-radius: 0.25rem;
+    background: white;
+}
+
+.result-table {
+    width: 100%;
+    font-size: 0.8125rem;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.result-table thead {
+    position: sticky;
+    top: 0;
+    background: #fafaf9;
+    z-index: 1;
+}
+
+.result-table thead th {
+    font-weight: 600;
+    padding: 0.5rem 0.75rem;
+    text-align: left;
+    border-bottom: 2px solid #dddbda;
+    white-space: nowrap;
+    background: #fafaf9;
+}
+
+.result-table tbody td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid #dddbda;
+    white-space: pre;
+    max-width: 300px;
+}
+
+.result-table tbody tr:hover {
+    background: #f3f2f2;
+}
+
+.cell-content {
+    max-width: 300px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Make table cells show full content on hover */
+.result-table tbody td:hover .cell-content {
+    overflow: visible;
+    white-space: normal;
+    word-break: break-all;
+}

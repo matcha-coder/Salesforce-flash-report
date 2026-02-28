@@ -1,0 +1,307 @@
+<template>
+    <div class="data-export-container">
+
+        <!-- Query Section Card -->
+        <div class="slds-card slds-m-around_small">
+            <div class="slds-card__body slds-card__body_inner">
+
+                <!-- Query Controls Header -->
+                <div class="query-controls">
+                    <h3 class="slds-text-heading_small slds-m-bottom_x-small">Export Query</h3>
+
+                    <!-- Query Options -->
+                    <div class="query-options">
+                        <label class="slds-checkbox_toggle slds-grid">
+                            <span class="slds-form-element__label slds-m-bottom_none">Deleted/Archived</span>
+                            <input
+                                type="checkbox"
+                                checked={queryAll}
+                                onchange={handleQueryAllChange}
+                                disabled={useToolingApi} />
+                            <span class="slds-checkbox_faux_container">
+                                <span class="slds-checkbox_faux"></span>
+                                <span class="slds-checkbox_on">On</span>
+                                <span class="slds-checkbox_off">Off</span>
+                            </span>
+                        </label>
+
+                        <label class="slds-checkbox_toggle slds-grid slds-m-left_small">
+                            <span class="slds-form-element__label slds-m-bottom_none">Tooling API</span>
+                            <input
+                                type="checkbox"
+                                checked={useToolingApi}
+                                onchange={handleToolingApiChange}
+                                disabled={queryAll} />
+                            <span class="slds-checkbox_faux_container">
+                                <span class="slds-checkbox_faux"></span>
+                                <span class="slds-checkbox_on">On</span>
+                                <span class="slds-checkbox_off">Off</span>
+                            </span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Query Tabs -->
+                <div class="query-tabs">
+                    <template for:each={tabs} for:item="tab">
+                        <div
+                            key={tab.index}
+                            class={tab.isActive}
+                            data-index={tab.index}
+                            onclick={handleTabClick}>
+                            <span class="query-tab-name">{tab.name}</span>
+                            <template if:true={tab.index}>
+                                <span
+                                    class="query-tab-close"
+                                    data-index={tab.index}
+                                    onclick={handleRemoveTab}>×</span>
+                            </template>
+                        </div>
+                    </template>
+                    <div class="add-tab-button" onclick={handleAddTab}>+</div>
+                </div>
+
+                <!-- Query Builder -->
+                <div class="query-builder">
+                    <!-- Object Selection -->
+                    <div class="slds-form-element">
+                        <label class="slds-form-element__label" for="object-select">
+                            <abbr class="slds-required" title="required">* </abbr>Object
+                        </label>
+                        <div class="slds-form-element__control">
+                            <lightning-combobox
+                                name="object"
+                                label="Object"
+                                variant="label-hidden"
+                                value={selectedObject}
+                                placeholder="Select an object"
+                                options={availableObjects}
+                                onchange={handleObjectChange}
+                                disabled={isLoadingObjects}>
+                            </lightning-combobox>
+                        </div>
+                    </div>
+
+                    <!-- Fields Selection -->
+                    <div class="slds-form-element slds-m-top_small">
+                        <label class="slds-form-element__label" for="fields-select">
+                            <abbr class="slds-required" title="required">* </abbr>Fields
+                        </label>
+                        <div class="slds-form-element__control">
+                            <lightning-dual-listbox
+                                name="fields"
+                                label="Fields"
+                                variant="label-hidden"
+                                source-label="Available Fields"
+                                selected-label="Selected Fields"
+                                options={availableFields}
+                                value={selectedFields}
+                                onchange={handleFieldsChange}
+                                disabled={isLoadingFields}
+                                min="1">
+                            </lightning-dual-listbox>
+                        </div>
+                    </div>
+
+                    <!-- WHERE Clause (Optional) -->
+                    <div class="slds-form-element slds-m-top_small">
+                        <label class="slds-form-element__label" for="where-input">
+                            WHERE Clause (Optional)
+                        </label>
+                        <div class="slds-form-element__control">
+                            <lightning-input
+                                name="where"
+                                variant="label-hidden"
+                                value={whereClause}
+                                placeholder="e.g., Industry = 'Technology' AND AnnualRevenue > 1000000"
+                                onchange={handleWhereChange}>
+                            </lightning-input>
+                        </div>
+                        <div class="slds-form-element__help">
+                            Enter conditions without the "WHERE" keyword
+                        </div>
+                    </div>
+
+                    <!-- ORDER BY (Optional) -->
+                    <div class="slds-form-element slds-m-top_small">
+                        <label class="slds-form-element__label" for="orderby-input">
+                            ORDER BY (Optional)
+                        </label>
+                        <div class="slds-form-element__control">
+                            <lightning-input
+                                name="orderby"
+                                variant="label-hidden"
+                                value={orderByField}
+                                placeholder="e.g., Name ASC, CreatedDate DESC"
+                                onchange={handleOrderByChange}>
+                            </lightning-input>
+                        </div>
+                    </div>
+
+                    <!-- LIMIT -->
+                    <div class="slds-form-element slds-m-top_small">
+                        <label class="slds-form-element__label" for="limit-input">
+                            LIMIT
+                        </label>
+                        <div class="slds-form-element__control">
+                            <lightning-input
+                                type="number"
+                                name="limit"
+                                variant="label-hidden"
+                                value={limitValue}
+                                min="1"
+                                max="50000"
+                                onchange={handleLimitChange}>
+                            </lightning-input>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Generated SOQL Query (Read-only) -->
+                <div class="slds-form-element slds-m-top_medium">
+                    <label class="slds-form-element__label">Generated SOQL Query</label>
+                    <div class="slds-form-element__control">
+                        <div class="generated-query">{queryInput}</div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="slds-m-top_small slds-text-align_right">
+                    <lightning-button
+                        variant="brand"
+                        label="Run Export"
+                        title="Execute Query"
+                        onclick={handleExecuteQuery}
+                        disabled={isWorking}
+                        class="slds-m-left_x-small">
+                    </lightning-button>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Results Section Card -->
+        <div class="slds-card slds-m-around_small result-card">
+            <div class="slds-card__body slds-card__body_inner">
+
+                <!-- Result Bar -->
+                <div class="result-bar">
+                    <h3 class="slds-text-heading_small">Export Result</h3>
+
+                    <div class="slds-button-group slds-m-left_small" role="group">
+                        <lightning-button
+                            label="Copy (Excel)"
+                            title="Copy exported data to clipboard for pasting into Excel"
+                            onclick={handleCopyAsExcel}
+                            disabled={buttonsDisabled}>
+                        </lightning-button>
+                        <lightning-button
+                            label="Copy (CSV)"
+                            title="Copy exported data to clipboard as CSV"
+                            onclick={handleCopyAsCSV}
+                            disabled={buttonsDisabled}>
+                        </lightning-button>
+                        <lightning-button
+                            label="Copy (JSON)"
+                            title="Copy raw API output to clipboard"
+                            onclick={handleCopyAsJSON}
+                            disabled={buttonsDisabled}>
+                        </lightning-button>
+                        <lightning-button-icon
+                            icon-name="utility:download"
+                            alternative-text="Download CSV"
+                            title="Download as CSV file"
+                            onclick={handleDownloadCSV}
+                            disabled={buttonsDisabled}>
+                        </lightning-button-icon>
+                        <lightning-button-icon
+                            icon-name="utility:hide"
+                            alternative-text="Hide Object Columns"
+                            title={prefHideRelationsTitle}
+                            onclick={handlePrefHideRelationsChange}
+                            disabled={buttonsDisabled}
+                            variant={hideIconVariant}>
+                        </lightning-button-icon>
+                    </div>
+
+                    <!-- Filter Input -->
+                    <template if:true={hasResults}>
+                        <lightning-input
+                            type="search"
+                            placeholder="Filter"
+                            value={resultsFilter}
+                            oninput={handleResultsFilterInput}
+                            class="slds-m-left_small filter-input">
+                        </lightning-input>
+                    </template>
+
+                    <!-- Status Badge -->
+                    <span class="result-status">
+                        <span class={hasError}>
+                            {exportStatus}
+                        </span>
+                    </span>
+                </div>
+
+                <!-- Error Display -->
+                <template if:true={hasError}>
+                    <div class="slds-box slds-theme_error slds-m-top_small">
+                        <p class="slds-text-color_error">{exportError}</p>
+                    </div>
+                </template>
+
+                <!-- Loading Spinner -->
+                <template if:true={isWorking}>
+                    <div class="slds-m-vertical_medium slds-text-align_center">
+                        <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+                    </div>
+                </template>
+
+                <!-- Results Table -->
+                <template if:true={hasResults}>
+                    <div class="result-table-container">
+                        <table class="result-table slds-table slds-table_bordered slds-table_cell-buffer">
+                            <thead>
+                                <tr class="slds-line-height_reset">
+                                    <template for:each={tableHeaders} for:item="header">
+                                        <th key={header.id} scope="col">
+                                            <div class="slds-truncate" title={header.value}>{header.value}</div>
+                                        </th>
+                                    </template>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <template for:each={tableRows} for:item="row">
+                                    <tr key={row.id} class="slds-hint-parent">
+                                        <template for:each={row.cells} for:item="cell">
+                                            <td key={cell.id}>
+                                                <div class="slds-truncate cell-content" title={cell.value}>
+                                                    {cell.value}
+                                                </div>
+                                            </td>
+                                        </template>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                    </div>
+                </template>
+
+                <!-- Empty State -->
+                <template if:false={hasResults}>
+                    <template if:false={isWorking}>
+                        <template if:false={hasError}>
+                            <div class="slds-text-align_center slds-m-vertical_large">
+                                <p class="slds-text-color_weak">
+                                    Enter a SOQL query and click "Run Export" to view results
+                                </p>
+                            </div>
+                        </template>
+                    </template>
+                </template>
+
+            </div>
+        </div>
+
+    </div>
+</template>
