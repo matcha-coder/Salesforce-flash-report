@@ -41,26 +41,6 @@
                     </div>
                 </div>
 
-                <!-- Query Tabs -->
-                <div class="query-tabs">
-                    <template for:each={tabs} for:item="tab">
-                        <div
-                            key={tab.index}
-                            class={tab.isActive}
-                            data-index={tab.index}
-                            onclick={handleTabClick}>
-                            <span class="query-tab-name">{tab.name}</span>
-                            <template if:true={tab.index}>
-                                <span
-                                    class="query-tab-close"
-                                    data-index={tab.index}
-                                    onclick={handleRemoveTab}>×</span>
-                            </template>
-                        </div>
-                    </template>
-                    <div class="add-tab-button" onclick={handleAddTab}>+</div>
-                </div>
-
                 <!-- Query Builder -->
                 <div class="query-builder">
                     <!-- Object Selection -->

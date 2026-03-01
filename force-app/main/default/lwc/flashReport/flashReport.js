@@ -14,9 +14,6 @@ export default class FlashReport extends LightningElement {
     @track exportError = null;
     @track isWorking = false;
     @track resultsFilter = '';
-    @track queryTabs = [];
-    @track activeTabIndex = 0;
-
     // Query Builder Fields
     @track selectedObject = 'Account';
     @track selectedFields = ['Id', 'Name'];
@@ -43,7 +40,6 @@ export default class FlashReport extends LightningElement {
     prefHideRelations = false;
 
     connectedCallback() {
-        this.loadQueryTabs();
         this.loadObjects();
         if (this.recordId) {
             this.loadSavedState();
@@ -190,82 +186,10 @@ export default class FlashReport extends LightningElement {
         }
 
         this.queryInput = query;
-
-        // Update current tab
-        if (this.queryTabs[this.activeTabIndex]) {
-            this.queryTabs[this.activeTabIndex].query = query;
-            this.saveQueryTabs();
-        }
-    }
-
-    loadQueryTabs() {
-        const savedTabs = sessionStorage.getItem('queryTabs');
-        if (savedTabs) {
-            this.queryTabs = JSON.parse(savedTabs);
-        } else {
-            this.queryTabs = [{
-                name: 'Query 1',
-                query: this.queryInput,
-                results: null
-            }];
-        }
-        this.activeTabIndex = 0;
-    }
-
-    saveQueryTabs() {
-        sessionStorage.setItem('queryTabs', JSON.stringify(this.queryTabs));
-    }
-
-    handleAddTab() {
-        const newTabName = `Query ${this.queryTabs.length + 1}`;
-        this.queryTabs.push({
-            name: newTabName,
-            query: '',
-            results: null
-        });
-        this.activeTabIndex = this.queryTabs.length - 1;
-        this.queryInput = '';
-        this.exportedData = null;
-        this.saveQueryTabs();
-    }
-
-    handleRemoveTab(event) {
-        event.stopPropagation();
-        const index = parseInt(event.target.dataset.index);
-        if (this.queryTabs.length > 1) {
-            this.queryTabs.splice(index, 1);
-            if (this.activeTabIndex >= index) {
-                this.activeTabIndex = Math.max(0, this.activeTabIndex - 1);
-            }
-            this.setActiveTab(this.activeTabIndex);
-            this.saveQueryTabs();
-        }
-    }
-
-    handleTabClick(event) {
-        const index = parseInt(event.currentTarget.dataset.index);
-        this.setActiveTab(index);
-    }
-
-    setActiveTab(index) {
-        this.activeTabIndex = index;
-        const tab = this.queryTabs[index];
-        this.queryInput = tab.query;
-        this.exportedData = tab.results;
-
-        if (this.exportedData && this.exportedData.records) {
-            this.exportStatus = `Loaded ${this.exportedData.records.length} records`;
-        } else {
-            this.exportStatus = 'Ready';
-        }
     }
 
     handleQueryChange(event) {
         this.queryInput = event.target.value;
-        if (this.queryTabs[this.activeTabIndex]) {
-            this.queryTabs[this.activeTabIndex].query = this.queryInput;
-            this.saveQueryTabs();
-        }
     }
 
     handleQueryAllChange(event) {
@@ -300,12 +224,6 @@ export default class FlashReport extends LightningElement {
             });
 
             this.processQueryResults(result);
-
-            // Store results in current tab
-            if (this.queryTabs[this.activeTabIndex]) {
-                this.queryTabs[this.activeTabIndex].results = this.exportedData;
-                this.saveQueryTabs();
-            }
 
         } catch (error) {
             this.exportError = error.body ? error.body.message : error.message;
@@ -599,14 +517,6 @@ export default class FlashReport extends LightningElement {
         return headers.map((header, index) => ({
             id: `header-${index}`,
             value: this.cellToString(header)
-        }));
-    }
-
-    get tabs() {
-        return this.queryTabs.map((tab, index) => ({
-            ...tab,
-            index: index,
-            isActive: index === this.activeTabIndex
         }));
     }
 
